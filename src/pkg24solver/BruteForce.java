@@ -207,18 +207,88 @@ public class BruteForce {
         return solution;
     }
     
+    String postfixToInfix(String postfix) {
+        class Expression {
+            String op, ex;
+            int prec = 3;
+ 
+            Expression(String e) {
+                ex = e;
+            }
+ 
+            Expression(String e1, String e2, String o) {
+                ex = String.format("%s %s %s", e1, o, e2);
+                op = o;
+                prec = operators.indexOf(o) / 2;
+            }
+        }
+ 
+        Stack<Expression> expr = new Stack<>();
+ 
+        for (char c : postfix.toCharArray()) {
+            int idx = operators.indexOf(c);
+            if (idx != -1) {
+ 
+                Expression r = expr.pop();
+                Expression l = expr.pop();
+ 
+                int opPrec = idx / 2;
+ 
+                if (l.prec < opPrec)
+                    l.ex = '(' + l.ex + ')';
+ 
+                if (r.prec <= opPrec)
+                    r.ex = '(' + r.ex + ')';
+ 
+                expr.push(new Expression(l.ex, r.ex, "" + c));
+            } else {
+                expr.push(new Expression("" + c));
+            }
+        }
+        return expr.peek().ex;
+    }
+    
+    String postfixToInfix2(String postfix) {
+ 
+        Stack<String> expr = new Stack<>();
+ 
+        for (char c : postfix.toCharArray()) {
+            System.out.println("c: " + c);
+            
+            int idx = operators.indexOf(c);
+            if (idx != -1) {
+ 
+                String right = expr.pop();
+                String left = expr.pop();
+                
+                String temp = "";
+                if(idx < 3){
+                    temp = '(' + left + c + right + ')';
+                }
+                else temp = left + c + right;
+                
+                expr.push(temp);
+            } else {
+                expr.push(String.valueOf(c));
+            }
+        }
+        
+        return expr.peek();
+    }
+    
     public static void main(String[] args){
         String input = "12+";
         BruteForce game = new BruteForce();
 //        if(game.isSolveable(input))
 //         System.out.println(input + ": " + String.valueOf(game.stack.pop()));
 //        System.out.println("ivana");
-        List<String[]> combination = game.getCombination("2,3,1,6");
+//        List<String[]> combination = game.getCombination("2,3,1,6");
 //        for(int i=0; i<combination.size(); i++){
 //            System.out.println("isi combination: " + Arrays.toString(combination.get(i)));
 //        }
-        
-        System.out.println(game.getSolution(game.getCombination("2,3,1,6")));
+        String hasil = game.getSolution(game.getCombination("3,3,7,7"));
+        System.out.println(hasil);
+        System.out.println(game.postfixToInfix2(hasil));
     }
 
 }
