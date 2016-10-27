@@ -18,28 +18,29 @@ import java.util.Stack;
  */
 public class BruteForce {
     String operators="+,-,*,/";
-    Stack<Integer> stack;
+    Stack<Double> stack;
     
     public BruteForce(){
         stack = new Stack<>();
     }
     
-    public boolean isSolveable(String input){
+    public boolean isSolveable(String[] input){
         
-        for(int i=0; i<input.length(); i++){
-            if(isOperator(input.charAt(i))){
+        for(int i=0; i<input.length; i++){
+//            System.out.println("input[" + i + "]: " + String.valueOf(input[i]));
+            if(isOperator(input[i].charAt(0))){
                 if(stack.size() < 2)
                     return false;
                 else{
-                    int op1 = stack.pop();
-                    int op2 = stack.pop();
+                    double op1 = stack.pop();
+                    double op2 = stack.pop();
                     
-                    int res = evaluateCount (op1, op2, input.charAt(i));
+                    double res = evaluateCount (op1, op2, input[i].charAt(0));
                     stack.push(res);
                 }
             }
             else{
-                stack.push(Integer.valueOf(String.valueOf(input.charAt(i))));
+                stack.push(Double.valueOf(String.valueOf(input[i].charAt(0))));
             }
         }
         
@@ -47,6 +48,21 @@ public class BruteForce {
             return true;
         
         return false;
+    }
+    
+    public boolean isValid (String[] input){
+        Stack<Integer> temp = new Stack<>();
+        for(int i=0; i<input.length; i++){
+            if(isOperator(input[i].charAt(0))){
+                if(temp.size() < 2)
+                    return false;
+            }
+            else{
+                temp.push(Integer.valueOf(String.valueOf(input[i].charAt(0))));
+            }
+        }
+        
+        return true;
     }
     
     public boolean isOperator(char c){
@@ -57,11 +73,12 @@ public class BruteForce {
     
     public List<String[]> getCombination(String number){
         List<String[]> returnedCombination = new ArrayList<>();
+        List<List<String>> retCombArr = new ArrayList<>();
         int it = 0;
         
         String seed = number+','+operators;
         List<String> himpunan = new ArrayList<String>(Arrays.asList(seed.split(",")));
-        System.out.println("himpunan: " + himpunan.toString());
+//        System.out.println("himpunan: " + himpunan.toString());
         String[] tempCombination = new String[7];
         
         //lokasi 1
@@ -121,8 +138,12 @@ public class BruteForce {
                                         himp7.remove(idx7);
                                     }
                                     
-                                    returnedCombination.add(tempCombination);
-//                                    
+                                    String[] tempCombination1 = new String[7];
+                                    for(int i=0; i<tempCombination.length; i++){
+                                        tempCombination1[i] = String.copyValueOf(tempCombination[i].toCharArray());
+                                    }
+                                    
+                                    returnedCombination.add(tempCombination1);
 //                                    System.out.print("tempCombination: ");
 //                                    for(int i=0; i<7; i++){
 //                                        System.out.print(tempCombination[i]+',');
@@ -139,19 +160,51 @@ public class BruteForce {
         return returnedCombination;
     }
     
-    private int evaluateCount(int op1, int op2, char charAt) {
-        System.out.println("op1: " + op1 + ", op2: " + op2 + ", operator: " + charAt);
+    private double evaluateCount(double op1, double op2, char charAt) {
+//        System.out.println("op1: " + op1 + ", op2: " + op2 + ", operator: " + charAt);
         
         if(charAt == '+')
             return op1+op2;
         if(charAt == '-')
-            return op1-op2;
+            return op2-op1;
         if(charAt == '*')
             return op1*op2;
         if(charAt == '/')
-            return op1/op2;
+            return op2/op1;
         
         return -999;
+    }
+    
+    public String getSolution(List<String[]> combination){
+        String solution = "";
+        boolean found = false;
+        int i = 0;
+        
+        while(!found && i < combination.size()){
+            stack = new Stack<>();
+            
+//            String temp = Arrays.toString(combination.get(i));
+            
+//            System.out.println("i: " + String.valueOf(i) + ", String[]: " + temp);
+            if(isSolveable(combination.get(i))){
+//                System.out.println("isi stack: " + stack.size());
+                double res = stack.pop();
+                if(res > 23.9 && res < 24.1)
+                {
+                    found = true;
+                    for(int j=0; j<7; j++){
+                        solution += combination.get(i)[j];
+                    }
+                }
+                else {
+                    i++;
+                }
+            }
+            else i++;
+        }
+        
+        
+        return solution;
     }
     
     public static void main(String[] args){
@@ -159,7 +212,13 @@ public class BruteForce {
         BruteForce game = new BruteForce();
 //        if(game.isSolveable(input))
 //         System.out.println(input + ": " + String.valueOf(game.stack.pop()));
-        System.out.println(game.getCombination("2,3,1,6").size());
+//        System.out.println("ivana");
+        List<String[]> combination = game.getCombination("2,3,1,6");
+//        for(int i=0; i<combination.size(); i++){
+//            System.out.println("isi combination: " + Arrays.toString(combination.get(i)));
+//        }
+        
+        System.out.println(game.getSolution(game.getCombination("2,3,1,6")));
     }
 
 }
